@@ -160,7 +160,8 @@ inline void pushdown(int now)
 {
     if (lazy[now])
     {
-        lll q = lazy[now], lazy = 0;
+        lll q = lazy[now];
+        lazy[now] = 0;
         addlazy(lson, q);
         addlazy(rson, q);
     }
