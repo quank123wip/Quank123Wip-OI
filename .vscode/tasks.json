@@ -12,6 +12,7 @@
                 "--std=c++11",
                 "-g",
                 "${fileDirname}/${fileBasename}",
+                "-o2",
                 "-o",
                 "${fileDirname}/${fileBasenameNoExtension}.out"
             ],
