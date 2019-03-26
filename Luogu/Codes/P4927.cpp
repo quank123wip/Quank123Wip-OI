@@ -5,6 +5,7 @@ typedef long long ll;
 typedef unsigned long long ull;
 typedef __int128_t lll;
 typedef __uint128_t ulll;
+#define int lll
 // FastIO defination
 namespace FastIO
 {
@@ -96,29 +97,21 @@ inline ulll read_ulll(void)
 }
 inline void print(lll p)
 {
-    if (p > 10)
+    if(p<0)putchar('-'),p=-p;
+    if (p > 9)
         print(p / 10);
     std::putchar(p % 10 + '0');
 }
 } // namespace FastIO
 // problem data
 const int maxn = 100000 + 10;
-const int mod = 998244353;
-int n, m;
-int a[maxn];
+const lll mod = 998244353;
+lll n, m;
+lll a[maxn];
 // math function
-lll fstpow(lll b, lll p, lll modder = mod)
+lll fstpow(lll b,lll p,lll moder,lll a=1)
 {
-    b%=mod;
-    lll ans = 1;
-    while (p)
-    {
-        if (p & 1)
-            ans*=b;
-        p >>= 1;
-        b = b* b% modder;
-    }
-    return ans;
+    return p==0?a%moder:p&1?fstpow(b,p-1,moder,(a*(b%moder))%moder):fstpow((b%moder)*(b%moder)%moder,p>>1,moder,a);
 }
 void exgcd(lll a, lll b, lll &x, lll &y)
 {
@@ -139,14 +132,18 @@ lll inverse(lll b, lll p)
     exgcd(b, p, x, y);
     return (x + p) % p;
 }
+lll gcd(lll a,lll b)
+{
+    return b==0?a:gcd(b,a%b);
+}
 // segment tree
 #define lson (now << 1)
 #define rson (now << 1 | 1)
 lll summ[maxn << 2], val[maxn << 2], lazy[maxn << 2], len[maxn << 2], lenm[maxn << 2], lenp[maxn << 2];
-inline void addlazy(int now, int add)
+inline void addlazy(int now, lll add)
 {
     lazy[now] += add;
-    summ[now] += 2 * lenp[now] * lazy[now] + lenm[now] * add * add;
+    summ[now] += 2 * lenp[now] * add + lenm[now] * add * add;
     lenp[now] += lenm[now] * add;
     val[now] += add * len[now];
 }
@@ -172,19 +169,19 @@ inline void build(int now = 1, int l = 1, int r = n)
     {
         lazy[now] = 0;
         val[now] = a[l];
-        summ[now] = a[l] * a[l];
-        lenp[now] = a[l];
+        summ[now] = val[now]*val[now];
+        lenp[now] = val[now];
         lenm[now] = 1;
         len[now] = 1;
         return;
     }
     build(lson, l, (l + r) >> 1);
-    build(rson, ((l + r) / 2) + 1, r);
+    build(rson, ((l + r) >> 1) + 1, r);
+    lenm[now] = lenm[lson] + lenm[rson] + (r - l + 1) * (r - l + 1);
     len[now] = (r - l + 1);
-    lenm[now] = lenm[lson] + lenm[rson] + len[now] * len[now];
     pushup(now);
 }
-inline void segadd(int now, int ln, int rn, int l, int r, int p)
+inline void segadd(int now, int ln, int rn, int l, int r, lll p)
 {
     if (ln >= l && rn <= r)
     {
@@ -198,7 +195,8 @@ inline void segadd(int now, int ln, int rn, int l, int r, int p)
         segadd(rson, (ln + rn) / 2 + 1, rn, l, r, p);
     pushup(now);
 }
-
+#undef lson
+#undef rson
 // refer to standard library
 using std::cin;
 using std::cout;
@@ -207,28 +205,28 @@ using std::endl;
 //using std::printf;
 signed main()
 {
-    n = FastIO::read_int();
-    m = FastIO::read_int();
-    for (int i = 1; i <= n; i++)
-        a[i] = FastIO::read_int();
+    n = FastIO::read_lll();
+    m = FastIO::read_lll();
+    for(int i=1;i<=n;i++)
+        a[i]=FastIO::read_lll();
     build();
     while (m--)
     {
         int opt = FastIO::read_int();
         if (opt == 1)
         {
-            int l, r, p;
-            l = FastIO::read_int();
-            r = FastIO::read_int();
-            p = FastIO::read_int();
+            lll l, r, p;
+            l = FastIO::read_lll();
+            r = FastIO::read_lll();
+            p = FastIO::read_lll();
             segadd(1, 1, n, l, r, p);
         }
         else
         {
-            int qaq=summ[1]/std::__gcd(summ[1],val[1]);
-            int qwq=val[1]/std::__gcd(summ[1],val[1]);
-            FastIO::print(qaq*inverse(qwq,mod)%mod);
-            cout << endl;
+            lll qaq=summ[1]/gcd(summ[1],val[1]);
+            lll qwq=val[1]/gcd(summ[1],val[1]);
+            FastIO::print(qaq%mod*fstpow(qwq,mod-2,mod)%mod);
+            puts("");
         }
     }
 }
