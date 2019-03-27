@@ -163,7 +163,41 @@ ll china(ll a[],ll b[],ll k)
 ```
 [P3868 [TJOI2009]猜数字](https://www.luogu.org/problemnew/show/P3868)(模板题,数据较毒瘤)
 ## 扩展中国剩余定理
-
+```cpp
+typedef long long ll;
+typedef __int128 lll;
+ll gcd(ll a,ll b)
+{
+    return b==0?a:gcd(b,a%b);
+}
+void exgcd(ll a,ll b,ll &x,ll &y)
+{
+    if(!b)
+        x=1,y=0;
+    else
+        exgcd(b,a%b,y,x),y-=(a/b)*x;
+}
+ll slow_mul(ll a,ll b,ll mod)
+{
+    lll a1=a,b1=b,mod1=mod;
+    return (a1*b1)%mod1;
+}
+ll excrt(ll a[],ll b[],ll k)
+{
+    ll ans=a[1],M=b[1],x=0,y=0,g;
+    for(int i=2;i<=k;i++)
+    {
+        ll bi=((a[i]-ans)%b[i]+b[i])%b[i];
+        g=gcd(M,b[i]);
+        exgcd(M,b[i],x,y);
+        x=slow_mul(bi/g,x,b[i]);
+        ans+=M*x;
+        M*=b[i]/g;
+        ans=(ans+M)%M;
+    }
+    return (ans%M+M)%M;
+}
+```
 ## $\text{Euler}函数$
 
 $\varphi(n)=n\cdot \prod^s_{i=1}(1-\frac{1}{p_i})$
