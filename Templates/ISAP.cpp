@@ -1,18 +1,18 @@
 #include <bits/stdc++.h>
+using namespace std;
 namespace ISAP
 {
-static const int MaxN = 100010;
-static const int MaxM = 100010;
+static const int maxn = 200010;
 static const int inf = 0x3f3f3f3f;
 int n, s, t;
 int cnt = 1;
-int head[MaxN], dep[MaxN], gap[MaxN], cur[MaxN];
-int to[MaxM], f[MaxN], next[MaxM];
 int maxflow;
-inline void addedge(int u, int v, int flow)
+int head[maxn], cur[maxn], flow[maxn], depth[maxn], gap[maxn];
+int to[maxn], next[maxn], f[maxn];
+inline void addedge(int u, int v, int w)
 {
     to[++cnt] = v;
-    f[cnt] = flow;
+    f[cnt] = w;
     next[cnt] = head[u];
     head[u] = cnt;
     to[++cnt] = u;
@@ -22,11 +22,11 @@ inline void addedge(int u, int v, int flow)
 }
 inline void bfs(int t)
 {
-    memset(dep, -1, sizeof dep);
+    memset(depth, -1, sizeof depth);
     memset(gap, 0, sizeof gap);
-    dep[t] = 0;
+    queue<int> q;
+    depth[t] = 0;
     gap[0] = 1;
-    std::queue<int> q;
     q.push(t);
     while (q.size())
     {
@@ -34,47 +34,51 @@ inline void bfs(int t)
         q.pop();
         for (int i = head[now]; i; i = next[i])
         {
-            if (dep[to[i]] != -1)
+            int v = to[i];
+            if (depth[v] != -1)
                 continue;
-            dep[to[i]] = dep[now] + 1;
-            q.push(to[i]);
-            gap[dep[to[i]]]++;
+            depth[v] = depth[now] + 1;
+            q.push(v);
+            gap[depth[v]]++;
         }
     }
 }
-inline int dfs(int from, int flow)
+inline int dfs(int now, int flow)
 {
-    if (from == t)
+    if (now == t)
     {
         maxflow += flow;
         return flow;
     }
     int used = 0;
-    for (int i = head[from]; i; i = next[i])
+    for (int i = cur[now]; i; i = next[i])
     {
-        if (f[i] && dep[to[i]] + 1 == dep[from])
+        cur[now] = i;
+        if (f[i] && depth[to[i]] + 1 == depth[now])
         {
-            int p = dfs(to[i], std::min(f[i], flow - used));
-            if (p)
+            int p = dfs(to[i], min(flow - used, f[i]));
+            if(p)
             {
-                f[i] -= p;
-                f[i ^ 1] -= p;
-                used += p;
+            f[i] -= p;
+            f[i ^ 1] += p;
+            used += p;
             }
-            if(used==flow)return used;
+            if (used == flow)
+                return used;
         }
     }
-    --gap[dep[from]];
-    if (!gap[dep[from]])
-        dep[s] = n + 1;
-    dep[from]++;
+    --gap[depth[now]];
+    if (!gap[depth[now]])
+        depth[s] = n + 1;
+    depth[now]++;
+    gap[depth[now]]++;
     return used;
 }
-int ISAP()
+inline int ISAP()
 {
     maxflow = 0;
     bfs(t);
-    while (dep[s] < n)
+    while (depth[s] < n)
     {
         memcpy(cur, head, sizeof head);
         dfs(s, inf);
