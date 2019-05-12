@@ -6,7 +6,7 @@
         {
             "label": "complie",			//任务名
             "type": "shell",
-            "command": "clang++",
+            "command": "g++",
             "args": [
                 // Ask msbuild to generate full paths for file names.
                 "--std=c++11",
