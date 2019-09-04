@@ -11,7 +11,7 @@ using std::pair;
 using std::sort;
 
 const int maxn = 100000 + 10;
-const long long INF=0x50000000000LL;
+const long long INF=50000000000LL;
 
 pair<long long,long long>a[5],h[maxn];
 std::set<long long>set;
